@@ -202,6 +202,7 @@ class WeatherPage extends GetView<WeatherController> {
                     ),
                   ],
                 ),
+                SizedBox(width: 10,),
                 ElevatedButton(
                   onPressed: controller.fetchWeatherForCurrentLocation,
                   style: ElevatedButton.styleFrom(
