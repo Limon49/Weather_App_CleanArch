@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "272350561612",
+    "project_id": "pdf-editor-252e0",
+    "storage_bucket": "pdf-editor-252e0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:272350561612:android:fc4cebadae03ceb355bbe9",
+        "android_client_info": {
+          "package_name": "com.example.weather_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBe5SDFzatNPicczFpSyrnjijUSMam0j3s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
