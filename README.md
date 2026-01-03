@@ -1,11 +1,19 @@
 # weather_app
 
-A new Flutter project.
+# main Branch
 
-## Getting Started
+Contains a Weather Application
 
-This project is a starting point for a Flutter application.
+Built using Clean Architecture principles
 
-A few resources to get you started if this is your first Flutter project:
+## pdf-maker
+
+#pdf-maker Branch
+
+Contains the PDF Maker / PDF Editor feature
+
+Includes all code related to creating and editing PDF files
+
+Implemented in a separate branch to keep feature development isolated
 
 
