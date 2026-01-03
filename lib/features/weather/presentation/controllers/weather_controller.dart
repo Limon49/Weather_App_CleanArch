@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
-
 import '../../domain/entities/weather_entity.dart';
 import '../../domain/usecases/get_current_weather_usecase.dart';
 import '../../../../core/errors/failures.dart';

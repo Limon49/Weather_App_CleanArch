@@ -9,8 +9,8 @@ class GetCurrentWeatherParams {
   GetCurrentWeatherParams({required this.latitude, required this.longitude});
 }
 
-class GetCurrentWeatherUseCase
-    implements UseCase<WeatherEntity, GetCurrentWeatherParams> {
+class GetCurrentWeatherUseCase implements UseCase<WeatherEntity, GetCurrentWeatherParams> {
+  // todo the main use of the usecase
   final WeatherRepository repository;
 
   GetCurrentWeatherUseCase(this.repository);
