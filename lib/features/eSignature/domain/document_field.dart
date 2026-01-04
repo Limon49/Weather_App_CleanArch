@@ -4,13 +4,11 @@ class DocumentField {
   final String id;
   final FieldType type;
 
-  // Normalized 0..1 relative to PDF page
   double nx;
   double ny;
   double nw;
   double nh;
 
-  // filled values for signing mode
   String? textValue;
   bool? boolValue;
   DateTime? dateValue;
@@ -26,7 +24,6 @@ class DocumentField {
   });
 
   Map<String, dynamic> toJson({required double pageW, required double pageH}) {
-    // Export in required format (x/y/width/height) :contentReference[oaicite:3]{index=3}
     return {
       "id": id,
       "type": type.name,

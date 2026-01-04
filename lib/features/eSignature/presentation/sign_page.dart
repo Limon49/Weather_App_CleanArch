@@ -1,9 +1,10 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:weather_app/features/eSignature/presentation/signature_pad_page.dart';
 import '../domain/document_field.dart';
 import '../services/pdf_service.dart';
 import 'preview_page.dart';
+import 'dart:typed_data' as td;
 
 class SignPage extends StatefulWidget {
   final String pdfPath;
@@ -30,7 +31,7 @@ class _SignPageState extends State<SignPage> {
           ElevatedButton(
             onPressed: loading ? null : _finish,
             child: Text(loading ? "Generating..." : "Generate Final PDF"),
-          )
+          ),
         ],
       ),
     );
@@ -65,15 +66,35 @@ class _SignPageState extends State<SignPage> {
           },
         );
       case FieldType.signature:
-      // Quick placeholder: you can replace with real drawing pad
         return ListTile(
           title: Text(f.id),
-          subtitle: Text(f.signaturePngBytes == null ? "Tap to set dummy signature" : "Signature set"),
-          onTap: () {
-            // TODO: Replace with signature draw widget returning PNG bytes
-            // for now: set empty bytes to mark "filled"
-            f.signaturePngBytes = Uint8List(1);
-            setState(() {});
+          subtitle: Text(
+            f.signaturePngBytes == null
+                ? "Tap to sign"
+                : "Tap to edit signature",
+          ),
+          trailing: Icon(
+            f.signaturePngBytes == null ? Icons.border_color : Icons.edit,
+          ),
+
+          onTap: () async {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Tapped!")),
+            );
+            final td.Uint8List? init = (f.signaturePngBytes == null)
+                ? null
+                : td.Uint8List.fromList(f.signaturePngBytes!);
+
+            final td.Uint8List? bytes = await Navigator.of(context)
+                .push<td.Uint8List>(
+                  MaterialPageRoute(
+                    builder: (_) => SignaturePadPage(initial: init),
+                  ),
+                );
+
+            if (bytes != null) {
+              setState(() => f.signaturePngBytes = bytes.toList());
+            }
           },
         );
     }
