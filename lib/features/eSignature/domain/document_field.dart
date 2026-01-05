@@ -31,6 +31,10 @@ class DocumentField {
       "y": (ny * pageH),
       "width": (nw * pageW),
       "height": (nh * pageH),
+      "textValue": textValue,
+      "boolValue": boolValue,
+      "dateValue": dateValue?.toIso8601String(),
+      "signaturePngBytes": signaturePngBytes,
     };
   }
 
@@ -45,7 +49,7 @@ class DocumentField {
     final w = (json["width"] as num).toDouble();
     final h = (json["height"] as num).toDouble();
 
-    return DocumentField(
+    final field = DocumentField(
       id: json["id"],
       type: t,
       nx: x / pageW,
@@ -53,5 +57,21 @@ class DocumentField {
       nw: w / pageW,
       nh: h / pageH,
     );
+
+    // Restore field values
+    if (json.containsKey("textValue") && json["textValue"] != null) {
+      field.textValue = json["textValue"] as String;
+    }
+    if (json.containsKey("boolValue") && json["boolValue"] != null) {
+      field.boolValue = json["boolValue"] as bool;
+    }
+    if (json.containsKey("dateValue") && json["dateValue"] != null) {
+      field.dateValue = DateTime.parse(json["dateValue"] as String);
+    }
+    if (json.containsKey("signaturePngBytes") && json["signaturePngBytes"] != null) {
+      field.signaturePngBytes = List<int>.from(json["signaturePngBytes"] as List);
+    }
+
+    return field;
   }
 }

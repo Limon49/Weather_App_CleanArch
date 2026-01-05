@@ -120,7 +120,12 @@ class _SignPageState extends State<SignPage> {
         originalPdfPath: widget.pdfPath,
         fields: widget.fields,
       );
-      Get.to(() => PreviewPage(pdfPath: outPath));
+      Get.to(() => PreviewPage(
+        pdfPath: outPath,
+        originalPdfPath: widget.pdfPath,
+        fieldCount: widget.fields.length,
+        userId: null, // SignPage doesn't have user context
+      ));
     } catch (e) {
       Get.snackbar("PDF generation failed", e.toString());
     } finally {

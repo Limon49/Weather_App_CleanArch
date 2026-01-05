@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
 import '../domain/document_field.dart';
-import '../presentation/signature_pad_page.dart';
+import 'signature_pad_page.dart';
 import 'dart:typed_data';
 
 
-class _FieldEditorSheet extends StatefulWidget {
+class FieldEditorSheet extends StatefulWidget {
   final DocumentField field;
   final VoidCallback? onDelete;
 
-  const _FieldEditorSheet({
+  const FieldEditorSheet({
+    super.key,
     required this.field,
     required this.onDelete,
   });
 
   @override
-  State<_FieldEditorSheet> createState() => _FieldEditorSheetState();
+  State<FieldEditorSheet> createState() => _FieldEditorSheetState();
 }
 
-class _FieldEditorSheetState extends State<_FieldEditorSheet> {
+class _FieldEditorSheetState extends State<FieldEditorSheet> {
   late final TextEditingController _textCtrl;
 
   @override
