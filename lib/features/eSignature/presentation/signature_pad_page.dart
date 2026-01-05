@@ -29,7 +29,6 @@ class _SignaturePadPageState extends State<SignaturePadPage> {
   }
 
   Future<void> _save() async {
-    // If user didn't draw but already had an old signature, return it
     if (controller.isEmpty) {
       if (widget.initial != null) {
         Navigator.of(context).pop(widget.initial);
@@ -62,10 +61,12 @@ class _SignaturePadPageState extends State<SignaturePadPage> {
           IconButton(
             icon: const Icon(Icons.delete),
             onPressed: controller.clear,
+            tooltip: "Clear",
           ),
           IconButton(
             icon: const Icon(Icons.check),
             onPressed: _save,
+            tooltip: "Save",
           ),
         ],
       ),
@@ -74,32 +75,50 @@ class _SignaturePadPageState extends State<SignaturePadPage> {
           Expanded(
             child: Container(
               color: Colors.grey.shade200,
-              child: Stack(
-                children: [
-                  if (widget.initial != null)
-                    Positioned.fill(
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Image.memory(
-                          widget.initial!,
-                          fit: BoxFit.contain,
-                          color: Colors.black54,
+              child: RepaintBoundary(
+                child: Stack(
+                  children: [
+                    if (widget.initial != null)
+                      Positioned.fill(
+                        child: RepaintBoundary(
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Image.memory(
+                              widget.initial!,
+                              fit: BoxFit.contain,
+                              color: Colors.black54,
+                              cacheWidth: 800, // Limit image size for performance
+                            ),
+                          ),
                         ),
                       ),
+                    Positioned.fill(
+                      child: Signature(
+                        controller: controller,
+                        backgroundColor: Colors.white.withOpacity(0.0),
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                      ),
                     ),
-                  Positioned.fill(
-                    child: Signature(
-                      controller: controller,
-                      backgroundColor: Colors.white.withOpacity(0.0),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.all(12),
-            child: Text("Draw inside the box. Trash = clear, ✓ = save."),
+          Container(
+            padding: const EdgeInsets.all(12),
+            color: Colors.white,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.info_outline, size: 16, color: Colors.grey),
+                const SizedBox(width: 8),
+                const Text(
+                  "Draw your signature. Tap ✓ to save.",
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ],
+            ),
           ),
         ],
       ),

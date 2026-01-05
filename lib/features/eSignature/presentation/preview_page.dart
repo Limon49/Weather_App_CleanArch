@@ -33,69 +33,129 @@ class PreviewPage extends GetView<PreviewController> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Final PDF Preview"),
-        actions: [
-          Obx(() => controller.isUploaded.value
-              ? const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Icon(Icons.check_circle, color: Colors.green),
-                )
-              : const SizedBox.shrink()),
-        ],
+        title: const Text("PDF Preview"),
+        elevation: 0,
       ),
       body: Column(
         children: [
           Expanded(
-            child: PdfViewPinch(controller: pdfController),
-          ),
-          if (userId != null)
-            Container(
-              padding: const EdgeInsets.all(16),
+            child: Container(
               decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
+                color: Colors.grey[200],
               ),
-              child: SafeArea(
-                child: Obx(() => SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: controller.isUploading.value || controller.isUploaded.value
-                        ? null
-                        : controller.saveToFirebase,
-                    icon: controller.isUploading.value
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : controller.isUploaded.value
-                            ? const Icon(Icons.check_circle)
-                            : const Icon(Icons.cloud_upload),
-                    label: Text(
-                      controller.isUploading.value
-                          ? "Uploading..."
-                          : controller.isUploaded.value
-                              ? "Saved to Firebase"
-                              : "Save to Firebase",
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: controller.isUploaded.value ? Colors.green : null,
-                      foregroundColor: controller.isUploaded.value ? Colors.white : null,
-                    ),
-                  ),
-                )),
-              ),
+              child: PdfViewPinch(controller: pdfController),
             ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+            ),
+            child: SafeArea(
+              child: Obx(() => Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton.icon(
+                      onPressed: controller.isSavingLocally.value ||
+                              controller.isSavedLocally.value
+                          ? null
+                          : controller.saveLocally,
+                      icon: controller.isSavingLocally.value
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : controller.isSavedLocally.value
+                              ? const Icon(Icons.check_circle)
+                              : const Icon(Icons.save),
+                      label: Text(
+                        controller.isSavingLocally.value
+                            ? "Saving..."
+                            : controller.isSavedLocally.value
+                                ? "Saved Locally"
+                                : "Save Locally",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: controller.isSavedLocally.value
+                            ? Colors.green
+                            : Get.theme.colorScheme.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                      ),
+                    ),
+                  ),
+                  if (userId != null) ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton.icon(
+                        onPressed: controller.isUploading.value ||
+                                controller.isUploaded.value
+                            ? null
+                            : controller.saveToFirebase,
+                        icon: controller.isUploading.value
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor:
+                                      AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : controller.isUploaded.value
+                                ? const Icon(Icons.check_circle)
+                                : const Icon(Icons.cloud_upload),
+                        label: Text(
+                          controller.isUploading.value
+                              ? "Uploading..."
+                              : controller.isUploaded.value
+                                  ? "Saved to Firebase"
+                                  : "Save to Firebase",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: controller.isUploaded.value
+                              ? Colors.green
+                              : Colors.orange,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              )),
+            ),
+          ),
         ],
       ),
     );

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -11,14 +12,17 @@ import '../preview_page.dart';
 class EditorController extends GetxController {
   final String pdfPath;
   final PdfService pdfService = PdfService();
-  
+
   late PdfControllerPinch pdfController;
   final RxList<DocumentField> fields = <DocumentField>[].obs;
   final RxBool published = false.obs;
   final Rx<Size> pageSize = const Size(1, 1).obs;
   final Rx<String?> selectedId = Rx<String?>(null);
   final RxBool generating = false.obs;
-  
+
+  String? _movingFieldId;
+  Timer? _updateTimer;
+
   String get uid => FirebaseAuth.instance.currentUser!.uid;
 
   EditorController({required this.pdfPath});
@@ -33,6 +37,7 @@ class EditorController extends GetxController {
 
   @override
   void onClose() {
+    _updateTimer?.cancel();
     pdfController.dispose();
     super.onClose();
   }
@@ -71,35 +76,48 @@ class EditorController extends GetxController {
   void moveField(DocumentField field, double deltaX, double deltaY) {
     final left = field.nx * pageSize.value.width;
     final top = field.ny * pageSize.value.height;
-    
     final newLeft = left + deltaX;
     final newTop = top + deltaY;
 
     field.nx = (newLeft / pageSize.value.width).clamp(0.0, 1.0 - field.nw);
     field.ny = (newTop / pageSize.value.height).clamp(0.0, 1.0 - field.nh);
+
+    _throttleUpdate(field.id);
   }
 
   void resizeField(DocumentField field, double deltaX, double deltaY) {
     final w = max(30.0, field.nw * pageSize.value.width);
     final h = max(24.0, field.nh * pageSize.value.height);
-
     final newWpx = (w + deltaX).clamp(30.0, pageSize.value.width);
     final newHpx = (h + deltaY).clamp(24.0, pageSize.value.height);
 
     field.nw = (newWpx / pageSize.value.width).clamp(0.02, 1.0 - field.nx);
     field.nh = (newHpx / pageSize.value.height).clamp(0.02, 1.0 - field.ny);
+
+    _throttleUpdate(field.id);
   }
 
+  void _throttleUpdate(String fieldId) {
+    _movingFieldId = fieldId;
+    _updateTimer?.cancel();
+    _updateTimer = Timer(const Duration(milliseconds: 16), () {
+      fields.refresh();
+      _movingFieldId = null;
+    });
+  }
+
+  bool isFieldMoving(String fieldId) => _movingFieldId == fieldId;
+
   bool validateFields() {
-    for (final f in fields) {
-      final ok = switch (f.type) {
-        FieldType.text => (f.textValue ?? "").trim().isNotEmpty,
-        FieldType.checkbox => f.boolValue != null,
-        FieldType.date => f.dateValue != null,
-        FieldType.signature => f.signaturePngBytes != null,
+    for (final field in fields) {
+      final isValid = switch (field.type) {
+        FieldType.text => (field.textValue ?? "").trim().isNotEmpty,
+        FieldType.checkbox => field.boolValue != null,
+        FieldType.date => field.dateValue != null,
+        FieldType.signature => field.signaturePngBytes != null,
       };
-      if (!ok) {
-        Get.snackbar("Missing", "Please fill ${f.id}");
+      if (!isValid) {
+        Get.snackbar("Missing", "Please fill ${field.id}");
         return false;
       }
     }
@@ -129,24 +147,29 @@ class EditorController extends GetxController {
     }
   }
 
-  String getFieldValueLabel(DocumentField f) {
-    switch (f.type) {
+  String getFieldValueLabel(DocumentField field) {
+    switch (field.type) {
       case FieldType.text:
-        final t = (f.textValue ?? "").trim();
-        return t.isEmpty ? "(empty)" : t;
+        final text = (field.textValue ?? "").trim();
+        return text.isEmpty ? "(empty)" : text;
       case FieldType.checkbox:
-        return (f.boolValue ?? false) ? "Yes" : "No";
+        return (field.boolValue ?? false) ? "✓" : "☐";
       case FieldType.date:
-        return f.dateValue == null ? "(no date)" : f.dateValue!.toIso8601String();
+        if (field.dateValue == null) return "(no date)";
+        final date = field.dateValue!;
+        return "${date.day}/${date.month}/${date.year}";
       case FieldType.signature:
-        return f.signaturePngBytes == null ? "(no sign)" : "(signed)";
+        return field.signaturePngBytes == null ? "(no sign)" : "✓ Signed";
     }
   }
 
   void exportJson() {
     final map = {
       "fields": fields
-          .map((f) => f.toJson(pageW: pageSize.value.width, pageH: pageSize.value.height))
+          .map((f) => f.toJson(
+                pageW: pageSize.value.width,
+                pageH: pageSize.value.height,
+              ))
           .toList(),
     };
     final pretty = const JsonEncoder.withIndent("  ").convert(map);
@@ -166,7 +189,7 @@ class EditorController extends GetxController {
 
       final decoded = jsonDecode(jsonText);
       if (decoded is! Map<String, dynamic>) {
-        throw Exception("JSON root must be an object { ... }");
+        throw Exception("JSON root must be an object");
       }
 
       final rawFields = decoded["fields"];
@@ -193,20 +216,17 @@ class EditorController extends GetxController {
   }
 
   void showImportJsonDialog() {
-    final ctrl = TextEditingController();
+    final controller = TextEditingController();
 
     Get.defaultDialog(
       title: "Paste JSON",
       content: SizedBox(
         width: 340,
-        child: TextField(controller: ctrl, maxLines: 12),
+        child: TextField(controller: controller, maxLines: 12),
       ),
       textConfirm: "Import",
       textCancel: "Cancel",
-      onConfirm: () {
-        importJson(ctrl.text);
-      },
+      onConfirm: () => importJson(controller.text),
     );
   }
 }
-

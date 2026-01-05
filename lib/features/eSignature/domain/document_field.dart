@@ -58,7 +58,6 @@ class DocumentField {
       nh: h / pageH,
     );
 
-    // Restore field values
     if (json.containsKey("textValue") && json["textValue"] != null) {
       field.textValue = json["textValue"] as String;
     }

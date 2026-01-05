@@ -59,8 +59,6 @@ class _FieldEditorSheetState extends State<FieldEditorSheet> {
               ],
             ),
             const SizedBox(height: 8),
-
-            // Editor content
             _buildEditorByType(context, f),
 
             const SizedBox(height: 12),
